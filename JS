@@ -1,0 +1,90 @@
+window.addEventListener('onEventReceived', function (obj) {
+
+    if (!obj.detail || !obj.detail.event) return;
+
+    const eventData = obj.detail.event;
+    const rawData = eventData.data || eventData;
+    const sender = eventData.sender || {};
+
+    let messageText =
+        eventData.renderedText ||
+        eventData.content ||
+        rawData.text ||
+        "";
+
+    if (!messageText) return;
+
+    let badgesHtml = "";
+
+    const badgesArray =
+        eventData.badges ||
+        rawData.badges ||
+        sender.badges ||
+        [];
+
+    let isBroadcaster = false;
+    let isModerator = false;
+
+    if (Array.isArray(badgesArray)) {
+        badgesArray.forEach(badge => {
+            const badgeText = JSON.stringify(badge).toLowerCase();
+
+            if (badgeText.includes("moderator") || badgeText.includes('"mod"')) {
+                isModerator = true;
+            }
+
+            if (badgeText.includes("broadcaster") || badgeText.includes("streamer")) {
+                isBroadcaster = true;
+            }
+        });
+    }
+
+    if (isBroadcaster) {
+        badgesHtml += `<span class="badge badge-broadcaster" title="Streamer"></span>`;
+    }
+
+    if (isModerator) {
+        badgesHtml += `<span class="badge badge-moderator" title="Moderator"></span>`;
+    }
+
+    let username =
+        sender.username ||
+        sender.displayName ||
+        rawData.displayName ||
+        rawData.username ||
+        obj.detail.nick ||
+        "Użytkownik";
+
+    let avatarEmoji = "🐸";
+    const lowerUsername = username.toLowerCase();
+
+    if (lowerUsername === "kubson462") {
+        avatarEmoji = "🫧";
+    } else if (lowerUsername === "olekofficial") {
+        avatarEmoji = "🦧";
+    }
+
+    const log = document.getElementById('log');
+    if (!log) return;
+
+    const row = document.createElement('div');
+    row.className = 'chat-row';
+
+    row.innerHTML = `
+        <div class="avatar-container">${avatarEmoji}</div>
+        <div class="message-container">
+            <div class="user-meta">
+                <div class="badges-wrapper">${badgesHtml}</div>
+                <span class="username">${username}</span>
+            </div>
+            <div class="message-bubble">${messageText}</div>
+        </div>
+    `;
+
+    log.appendChild(row);
+
+    while (log.children.length > 6) {
+        log.removeChild(log.firstChild);
+    }
+
+});
