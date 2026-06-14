@@ -5,4 +5,4 @@
 3. Click "SETTINGS" -> "OPEN EDITOR"
 4. Paste HTML, CSS and JS
 
-Paste to OBS STUDIO!
+Paste widget to OBS STUDIO!
